@@ -20,7 +20,7 @@ public class TodoItem {
     }
 
     public String getShortDateCreated() {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/mm");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM");
         return sdf.format(dateCreated).toString();
     }
 

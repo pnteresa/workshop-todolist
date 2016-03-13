@@ -26,6 +26,11 @@ public class TodoListAdapter extends BaseAdapter {
         this.todoItems = todoItems;
     }
 
+    public void add(String content) {
+        todoItems.add(new TodoItem(content));
+        notifyDataSetChanged();
+    }
+
     @Override
     public int getCount() {
         return todoItems.size();
