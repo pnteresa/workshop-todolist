@@ -1,5 +1,6 @@
 package in.masukang.todolist.models;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -16,6 +17,11 @@ public class TodoItem {
         this.content = content;
         this.dateCreated = new Date();
         this.isCompleted = false;
+    }
+
+    public String getShortDateCreated() {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/mm");
+        return sdf.format(dateCreated).toString();
     }
 
     public String getContent() {
