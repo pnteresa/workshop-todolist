@@ -1,13 +1,16 @@
 package in.masukang.todolist.adapter;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
@@ -67,7 +70,7 @@ public class TodoListAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         Holder holder = new Holder();
         View rowView;
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -88,7 +91,49 @@ public class TodoListAdapter extends BaseAdapter {
             }
         });
 
+        final Holder finalHolder = holder;
+
         holder.content.setChecked(current.isCompleted());
+
+        holder.content.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                AlertDialog.Builder alert = new AlertDialog.Builder(context);
+                alert.setTitle("Edit Task");
+
+                final EditText input = new EditText(context);
+                input.setText(current.getContent());
+                alert.setView(input);
+
+                alert.setItems(new CharSequence[]
+                                {"OK", "Delete", "Cancel"},
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // The 'which' argument contains the index position
+                                // of the selected item
+                                switch (which) {
+                                    case 0:
+                                        String content = input.getText().toString();
+                                        current.setContent(content);
+                                        finalHolder.content.setText(content);
+                                        saveItems();
+                                        break;
+                                    case 1:
+                                        todoItems.remove(position);
+                                        notifyDataSetChanged();
+                                        saveItems();
+                                        break;
+                                    case 2:
+                                        break;
+                                }
+                            }
+                        });
+
+                alert.show();
+                return false;
+            }
+        });
+
 
         return rowView;
     }
