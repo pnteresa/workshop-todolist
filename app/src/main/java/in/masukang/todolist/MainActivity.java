@@ -2,9 +2,11 @@ package in.masukang.todolist;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,7 +15,12 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import in.masukang.todolist.adapter.TodoListAdapter;
 import in.masukang.todolist.models.TodoItem;
@@ -29,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
         ListView listView = (ListView) findViewById(R.id.todo_list_view);
 
-        adapter = new TodoListAdapter(this, getDummyData());
+        adapter = new TodoListAdapter(this, getTodoItems());
 
         listView.setAdapter(adapter);
 
@@ -68,8 +75,28 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
 
+    public ArrayList<TodoItem> getTodoItems() {
+        ArrayList<TodoItem> todoItems = new ArrayList<TodoItem>();
 
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        String json = sharedPref.getString("todoItems", "");
+
+        if (json != null && json.length() != 0) {
+            Gson gson = new Gson();
+
+            try {
+                TodoItem[] todoItemsArray = gson.fromJson(json, TodoItem[].class);
+                todoItems = new ArrayList<TodoItem>(Arrays.asList(todoItemsArray));
+            } catch (Exception e) {
+                Log.d("Caught Exception: ", e.getMessage());
+            }
+        } else {
+            todoItems = getDummyData();
+        }
+
+        return todoItems;
     }
 
     public ArrayList<TodoItem> getDummyData() {

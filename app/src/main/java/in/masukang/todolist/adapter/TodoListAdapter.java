@@ -1,15 +1,20 @@
 package in.masukang.todolist.adapter;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
+
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
+import in.masukang.todolist.MainActivity;
 import in.masukang.todolist.R;
 import in.masukang.todolist.models.TodoItem;
 
@@ -27,9 +32,24 @@ public class TodoListAdapter extends BaseAdapter {
     }
 
     public void add(String content) {
-        todoItems.add(new TodoItem(content));
+        TodoItem newItem = new TodoItem(content);
+        todoItems.add(newItem);
+
+        saveItems();
+
         notifyDataSetChanged();
     }
+
+    public void saveItems() {
+        SharedPreferences sharedPref = ((MainActivity) context).getPreferences(Context.MODE_PRIVATE);
+        Gson gson = new Gson();
+        String json = gson.toJson(todoItems);
+
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("todoItems", json);
+        editor.commit();
+    }
+
 
     @Override
     public int getCount() {
@@ -56,16 +76,20 @@ public class TodoListAdapter extends BaseAdapter {
         holder.content = (CheckBox) rowView.findViewById(R.id.item_checkbox);
         holder.dateCreated = (TextView) rowView.findViewById(R.id.date_text_view);
 
-        TodoItem current = todoItems.get(position);
+        final TodoItem current = todoItems.get(position);
         holder.content.setText(current.getContent());
         holder.dateCreated.setText(current.getShortDateCreated());
 
-        rowView.setOnClickListener(new View.OnClickListener() {
+        holder.content.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View v) {
-                // nanti akan diisi
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                current.setIsCompleted(isChecked);
+                saveItems();
             }
         });
+
+        holder.content.setChecked(current.isCompleted());
+
         return rowView;
     }
 
